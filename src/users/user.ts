@@ -1,6 +1,8 @@
 import bodyParser from "body-parser";
 import express from "express";
 import { BASE_USER_PORT } from "../config";
+import {GetNodeRegistryBody, Nodes} from "@/src/registry/registry";
+import {createRandomSymmetricKey, exportSymKey, rsaEncrypt, symEncrypt} from "../crypto";
 
 export type SendMessageBody = {
   message: string;
@@ -13,6 +15,7 @@ export async function user(userId: number) {
   _user.use(bodyParser.json());
   let lastReceivedMessage : string | null = null;
   let lastSentMessage : string | null = null;
+  let lastCircuit: Nodes[] = [];
 
   // TODO implement the status route
   _user.get("/status", (req, res) => {
@@ -31,6 +34,8 @@ export async function user(userId: number) {
     lastReceivedMessage = req.body.message;
     res.status(200).send("success");
   });
+
+
 
   const server = _user.listen(BASE_USER_PORT + userId, () => {
     console.log(
